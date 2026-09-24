@@ -1,0 +1,17 @@
+# PyTorch/torchvision come from AMD's ROCm image. Do not reinstall torch here.
+transformers==4.57.0
+accelerate
+huggingface_hub
+safetensors
+nibabel
+backoff
+scipy
+open_clip_torch
+matplotlib
+monai
+einops
+timm
+fastapi
+uvicorn[standard]
+python-multipart
+pillow

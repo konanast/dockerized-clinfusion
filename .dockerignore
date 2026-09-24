@@ -1,0 +1,6 @@
+.git
+cache
+data
+*.zip
+__pycache__
+.env
