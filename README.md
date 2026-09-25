@@ -1,10 +1,8 @@
-# ClinFusion 8B / 32B on AMD Strix Halo — Docker + API v3
+# ClinFusion 8B / 32B on AMD Strix Halo
 
 Ready-to-run ROCm deployment wrapper for `alibaba-damo-academy/ClinFusion` on Ryzen AI Max / Max+ (gfx1151), aimed at Ubuntu 24.04 + ROCm 7.2.1.
 
-**v3 keeps ClinFusion-8B as the default.** If you upgrade from the working v2 package and simply run `./start.sh`, it continues to use 8B on port **8008**. 32B is an opt-in future test.
-
-## v3 highlights
+## Highlights
 
 - `MODEL_VARIANT=8B` by default
 - Selectable **ClinFusion-8B** or **ClinFusion-32B** using the same API and Open WebUI integration
@@ -16,30 +14,7 @@ Ready-to-run ROCm deployment wrapper for `alibaba-damo-academy/ClinFusion` on Ry
 - OpenAI-compatible text + vision API and Open WebUI NIfTI Pipe retained from v2
 - Fixes the upstream case-sensitive 32B base-model selector (`ClinFusion-32B` now correctly selects Qwen3-VL-32B)
 
-## 1. Upgrade from your working v2 deployment
-
-Extract v3 and copy your existing configuration:
-
-```bash
-unzip clinfusion-strix-halo.zip
-cd clinfusion-strix-halo
-./upgrade-from-v2.sh /path/to/clinfusion-strix-halo-v2
-./start.sh
-```
-
-The upgrade helper adds only:
-
-```bash
-MODEL_VARIANT=8B
-```
-
-Your existing `HOST_CACHE_DIR`, API key, port, data path, and model files are reused.
-
-v3 intentionally retains the v2 Compose project identity so `./start.sh` updates/recreates the same API service rather than trying to start a second container on port 8008.
-
-If you copy v3 files over your existing directory instead, `./start.sh` automatically adds `MODEL_VARIANT=8B` when it is absent.
-
-## 2. Normal/default operation — 8B
+## Normal/default operation — 8B
 
 ```bash
 ./start.sh
@@ -71,7 +46,7 @@ cache/
   3d_volume/
 ```
 
-## 3. Prepare 32B without changing the active model
+## Prepare 32B without changing the active model
 
 This is the recommended first step:
 
@@ -100,7 +75,7 @@ You can similarly check the current/default model with:
 ./models.sh 8B
 ```
 
-## 4. Switch to 32B later
+## Switch to 32B later
 
 When the files are ready:
 
@@ -127,7 +102,7 @@ To return to the normal 8B deployment:
 ./start.sh
 ```
 
-## 5. Important 32B memory note for 128-GB Strix Halo
+## Important 32B memory note for 128-GB Strix Halo
 
 32B is optional and much closer to the memory ceiling. Before loading it, check the host's GPU-visible TTM/GTT allocation:
 
@@ -147,7 +122,7 @@ Keep concurrency at one (the API already serializes GPU inference) and benchmark
 ./scripts/benchmark.sh nifti /path/to/scan.nii.gz
 ```
 
-## 6. API endpoints
+## API endpoints
 
 The selected model uses the same endpoints as v2:
 
@@ -177,7 +152,7 @@ clinfusion-32b
 
 If `API_KEY` is set, use either `Authorization: Bearer YOUR_KEY` or `X-API-Key: YOUR_KEY`.
 
-## 7. Open WebUI
+## Open WebUI
 
 The existing Open WebUI setup is retained. The included Pipe is now generically named:
 
@@ -215,7 +190,7 @@ Base URL: http://<STRIX-IP>:8008/v1
 
 After switching variants, Open WebUI's model discovery may need a refresh to show `clinfusion-32b` instead of `clinfusion-8b`. The Pipe itself does not need to change.
 
-## 8. Text / image / NIfTI examples
+## Text / image / NIfTI examples
 
 Text:
 
@@ -247,7 +222,7 @@ curl -s http://localhost:8008/v1/infer/files \
   -F 'niftis=@/path/to/scan.nii.gz'
 ```
 
-## 9. Port customization
+## Port customization
 
 8008 remains the default. Change `.env` if needed:
 
@@ -257,7 +232,7 @@ API_PORT=8018
 
 Update the Open WebUI connection/Pipe URL to match.
 
-## 10. Useful commands
+## Useful commands
 
 ```bash
 ./start.sh                 # start selected model; defaults to 8B
@@ -271,22 +246,8 @@ Update the Open WebUI connection/Pipe URL to match.
 ./select-model.sh 32B
 ```
 
-## 11. ROCm/upstream adaptations
+## Versions
 
-The package retains all v2 ROCm changes:
-
-- CUDA FlashAttention wheel is not installed
-- PyTorch SDPA is used by default
-- FP16 is the default dtype
-- DeepSpeed import is optional for single-GPU inference
-- Ray/vLLM are not required by the API wrapper
-- strict 3D preprocessing errors are enabled by default instead of silently substituting a zero volume
-
-v3 additionally fixes the upstream 32B selector. The upstream adapter uses a case-sensitive check for lowercase `32b`, while the official model path is `ClinFusion-32B`; v3 patches that selection to be case-insensitive before the container image is built.
-
-## 12. Versions
-
-- Package: v3.0
 - API wrapper: 0.3.0
 - Default model: ClinFusion-8B
 - Optional model: ClinFusion-32B
